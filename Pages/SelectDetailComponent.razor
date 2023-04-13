@@ -1,0 +1,82 @@
+﻿@using AntDesign
+@using BlazorApp2.Models;
+@using System.Text.Json;
+
+@if (Data == null)
+{
+    return;
+}
+
+@*  
+    As a default behavior (AntDesign Select component), the OnSelectedItemChanged callback can only get the value of the 
+    selected item. The "LabelInValue" property can be used to get the label property of the selected item.
+    The label of the selected item will be packed as an string (JSON) for passing to the OnSelectedItemChanged callback. 
+    This function is only available when the SelectOptions are created without a DataStore.
+*@
+<Select DefaultValue="@CurrentValue"
+        Id="antdSelect"
+        DropdownMatchSelectWidth="true"
+        TItem="string"
+        TItemValue="string"
+        LabelInValue="true"
+        OnSelectedItemChanged="@(item => OnSelectedItemChanged(ConvertToSelectModel(item)))" Disabled="@Disabled">
+
+    <SelectOptions>
+        @foreach (var item in Data)
+        {
+            if (item.Divider)
+            {
+                <SelectOption TItem="string" TItemValue="string" Disabled="true" Style="background: #c9c9c9; font-size: 0.25em;"></SelectOption>
+            }
+            else
+            {
+                <SelectOption Class="@OptionCssClass"
+                      TItemValue="string"
+                      TItem="string"
+                      Value="@item.Id"
+                      Label="@item.Name"
+                      Disabled=@item.Disabled>
+                </SelectOption>
+            }
+        }
+    </SelectOptions>
+</Select>
+
+@code {
+    [Parameter]
+    public IEnumerable<SelectModel>? Data { get; set; }
+
+    [Parameter]
+    public string LabelCaption { get; set; } = string.Empty;
+
+    [Parameter]
+    public string CurrentValue { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    [Parameter]
+    public string OptionCssClass { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<SelectModel> OnSelectedItem { get; set; }
+
+    private SelectModel ConvertToSelectModel(string jsonString)
+    {
+        var value = jsonString.Replace("value", "Id").Replace("label", "Name");
+        var result = JsonSerializer.Deserialize<SelectModel>(value);
+        return result ?? new SelectModel();
+    }
+
+    private void OnSelectedItemChanged(SelectModel value)
+    {
+        if (!CurrentValue.Equals(value.Id))
+        {
+            if (OnSelectedItem.HasDelegate)
+            {
+                OnSelectedItem.InvokeAsync(value);
+            }
+        }
+
+    }
+}    

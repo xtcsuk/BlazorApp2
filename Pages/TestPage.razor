@@ -1,0 +1,49 @@
+﻿@page "/testpage"
+@using AntDesign
+@using BlazorApp2.Models;
+
+<div>
+    <GridRow Style="border: solid;">
+        <GridCol Span="10" Style="justify-content: flex-start; padding-left: 2;">
+            <GridRow><strong>Title</strong></GridRow>
+            <GridRow>Other Info</GridRow>
+        </GridCol>
+        <GridCol Span="14">
+            @*<GridRow Style="justify-content: space-between; align-items: center; margin-top: 5px;">*@
+            <GridRow Style="justify-content: space-between; align-items: center; margin-top: 5px;">
+                <Button Type="@ButtonType.Primary" Size="@ButtonSize.Small" Style="">Button</Button>
+                <SelectComponent Data="_selectData"></SelectComponent>
+                <DropDownComponent Data="_dropDownData"></DropDownComponent>
+                <Button Type="@ButtonType.Primary" Size="@ButtonSize.Small" Style="">Button</Button>
+                <SelectComponent Data="_selectData"></SelectComponent>
+            </GridRow>
+        </GridCol>
+    </GridRow>
+</div>
+
+@code {
+    private IEnumerable<SelectModel>? _selectData;
+    private IEnumerable<DropDownModel>? _dropDownData;
+
+    protected override void OnInitialized()
+    {
+        _selectData = new List<SelectModel>
+        {
+            new SelectModel
+            {
+                Id = "Value Test1",
+                Name = "label Test1",
+                Disabled = false
+            }
+        };
+
+        _dropDownData = new List<DropDownModel>
+        {
+            new DropDownModel
+            {
+                Id = "Id",
+                Description = "Description"
+            }
+        };
+    }
+}

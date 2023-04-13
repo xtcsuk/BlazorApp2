@@ -1,0 +1,75 @@
+﻿@using BlazorApp2.Models;
+
+<select class="" @bind="@CurrentValue">
+    @foreach (var item in Data)
+    {
+        if (item.Divider)
+        {
+            <option disabled style="background: #c9c9c9; font-size: 0.10em;"></option>
+        }
+        else
+        {
+            <option class="" value="@item.Id" selected="@(CurrentValue.Equals(item.Id))">@item.Name</option>
+        }
+    }
+</select>
+
+@code {
+    private string _currentValue = string.Empty;
+
+    [Parameter]
+    public IEnumerable<SelectModel> Data { get; set; } = new List<SelectModel>();
+
+    [Parameter]
+    public string CurrentValue 
+    { 
+        get { return _currentValue; } 
+        set
+        {
+            if (!_currentValue.Equals(value))
+            {
+                _currentValue = value;
+                if (OnChange.HasDelegate)
+                {
+                    var model = Data.SingleOrDefault(d => d.Id.Equals(value));
+                    if (model != null)
+                    {
+                        OnChange.InvokeAsync(model);
+                    }                    
+                }
+            }
+        } 
+    } 
+
+    [Parameter]
+    public EventCallback<SelectModel> OnChange { get; set; }
+
+    //private void ItemChanged(ChangeEventArgs e)
+    //{
+    //    var id = e.Value?.ToString();
+    //    var model = Data.SingleOrDefault(d => d.Id.Equals(id));
+
+    //    if (model != null)
+    //    {
+    //        if (string.IsNullOrWhiteSpace(CurrentValue))
+    //        {
+    //            TryTriggerEvent(model);
+    //            return;
+    //        }
+
+    //        if (!string.IsNullOrWhiteSpace(CurrentValue)
+    //                      && !CurrentValue.Equals(id))
+    //        {
+    //            TryTriggerEvent(model);
+    //        }
+    //    }
+    //}
+
+    //private void TryTriggerEvent(SelectModel model)
+    //{
+    //    if (OnChange.HasDelegate)
+    //    {
+    //        OnChange.InvokeAsync(model);
+    //    }
+    //}
+}

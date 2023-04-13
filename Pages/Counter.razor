@@ -1,0 +1,43 @@
+﻿@page "/counter"
+@using AntDesign;
+@using BlazorApp2.Models;
+
+<p>standard dropdown</p>
+<StandardDropDownComponent Data="_selectNames" CurrentValue="@_selectedItem.Id" OnChange="StandardDropDownChange"></StandardDropDownComponent>
+<p>@_selectedItem.Name</p>
+
+
+@*<p>Antd dropdown using Select component</p>
+<SelectDetailComponent Data="_selectNames"></SelectDetailComponent>
+*@
+@code {
+    private SelectModel _selectedItem = new SelectModel();
+
+    private IEnumerable<SelectModel> _selectNames = new List<SelectModel>
+    {
+        new SelectModel
+        {
+            Id = "one",
+            Name = "name one"
+        },
+        new SelectModel
+        {
+            Id = "two",
+            Name = "name two"
+        },
+        new SelectModel
+        {
+            Divider = true
+        },
+        new SelectModel
+        {
+            Id = "three",
+            Name = "name of three"
+        }
+    };
+
+    private void StandardDropDownChange(SelectModel model)
+    {
+        _selectedItem = model;
+    }
+}

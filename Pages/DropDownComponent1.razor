@@ -1,0 +1,46 @@
+﻿@using AntDesign;
+@using BlazorApp2.Models;
+
+@if (Data == null)
+{
+    return;
+}
+
+<Dropdown Trigger="@(new Trigger[] { Trigger.Click })" >
+    <Overlay>
+        <Menu OnMenuItemClicked="OnItemClicked">
+            @foreach (var item in Data)
+            {
+                if (item.Divider)
+                {
+                    <MenuDivider />
+                }
+                else
+                {
+                    <MenuItem Disabled="@item.Disabled" Id="@item.Id">@item.Description</MenuItem>
+                }                
+            }
+        </Menu>
+    </Overlay>
+    <Unbound>
+        <a class="ant-dropdown-link" @ref="@context.Current">
+            Hover me (unbounded) <Icon Type="down" />
+        </a>
+    </Unbound>
+</Dropdown>
+
+@code {
+    [Parameter]
+    public IEnumerable<DropDownModel>? Data { get; set; }
+
+    [Parameter]
+    public string ButtonCaption { get; set; } = "No Caption";
+
+    [Parameter]
+    public EventCallback<DropDownModel> OnItemClick { get; set; }
+
+    private void OnItemClicked(MenuItem value)
+    {
+        // code to invoke
+    }
+}

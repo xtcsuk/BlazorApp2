@@ -1,0 +1,87 @@
+﻿@using AntDesign
+@using BlazorApp2.Models;
+
+@*<SimpleSelect DefaultValue="lucy" Style="width:120px;" OnSelectedItemChanged="handleChange">
+    <SelectOptions>
+        <SimpleSelectOption Value="jack" Label="Jack"></SimpleSelectOption>
+        <SimpleSelectOption Value="lucy" Label="Lucy"></SimpleSelectOption>
+        <SimpleSelectOption Value="disabled" Label="Disabled" Disabled></SimpleSelectOption>
+        <SimpleSelectOption Value="Yiminghe" Label="yiminghe"></SimpleSelectOption>
+    </SelectOptions>
+</SimpleSelect>
+*@
+
+@if (Data == null)
+{
+    return;
+}
+
+<Select TItem="SelectModel" TItemValue="string">
+
+</Select>
+
+<SimpleSelect OnSelectedItemChanged="OnSelectedItemChanged"
+              DefaultValue="@CurrentValue"
+              Class="@CssClass">
+    <SelectOptions>
+        @foreach (var item in Data)
+        {
+            if (item.Divider)
+            {
+                <MenuDivider />
+            }
+            else
+            {
+                <SimpleSelectOption Class="ant-select-selection" Value="@item.Name" Label="@item.Id" Disabled=@item.Disabled></SimpleSelectOption>
+            }
+        }
+    </SelectOptions>
+</SimpleSelect>
+
+@code {
+
+    [Parameter]
+    public IEnumerable<SelectModel>? Data { get; set; }
+
+    [Parameter]
+    public string CurrentValue { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<SelectModel> OnSelectedItem { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; } = string.Empty;
+
+    private SelectModel? _selectedModel;
+
+    private void OnSelectedItemChanged(string value)
+    {
+        //if (!string.IsNullOrWhiteSpace(CurrentValue))
+        //{
+        //    var item = Data?.FirstOrDefault(m => m.Id.Equals(CurrentValue));
+        //    if (item != null)
+        //    {
+        //        _selectedModel = item;
+        //    }
+        //}
+
+        //if (_selectedModel == null)
+        //{
+        //    _selectedModel = value;
+        //    if (OnSelectedItem.HasDelegate)
+        //    {
+        //        OnSelectedItem.InvokeAsync(value);
+        //    }
+        //    return;
+        //}
+        //if (_selectedModel.Id != value.Id)
+        //{
+        //    _selectedModel = value;
+        //    if (OnSelectedItem.HasDelegate)
+        //    {
+        //        OnSelectedItem.InvokeAsync(value);
+        //    }
+        //}
+    }
+
+}
