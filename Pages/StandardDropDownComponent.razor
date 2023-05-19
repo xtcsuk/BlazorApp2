@@ -3,9 +3,9 @@
 <select class="" @bind="@CurrentValue">
     @foreach (var item in Data)
     {
-        if (item.Divider)
+        if (item.Disabled)
         {
-            <option disabled style="background: #c9c9c9; font-size: 0.10em;"></option>
+            <option disabled value="@item.Id">@item.Name</option>
         }
         else
         {
@@ -29,12 +29,12 @@
             if (!_currentValue.Equals(value))
             {
                 _currentValue = value;
-                if (OnChange.HasDelegate)
+                if (OnSelectedItemChanged.HasDelegate)
                 {
                     var model = Data.SingleOrDefault(d => d.Id.Equals(value));
                     if (model != null)
                     {
-                        OnChange.InvokeAsync(model);
+                        OnSelectedItemChanged.InvokeAsync(model);
                     }                    
                 }
             }
@@ -42,7 +42,7 @@
     } 
 
     [Parameter]
-    public EventCallback<SelectModel> OnChange { get; set; }
+    public EventCallback<SelectModel> OnSelectedItemChanged { get; set; }
 
     //private void ItemChanged(ChangeEventArgs e)
     //{

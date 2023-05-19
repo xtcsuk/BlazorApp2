@@ -2,14 +2,15 @@
 @using AntDesign;
 @using BlazorApp2.Models;
 
-<p>standard dropdown</p>
-<StandardDropDownComponent Data="_selectNames" CurrentValue="@_selectedItem.Id" OnChange="StandardDropDownChange"></StandardDropDownComponent>
-<p>@_selectedItem.Name</p>
+@*<p>standard dropdown</p>
+<StandardDropDownComponent Data="_selectNames" CurrentValue="two" OnSelectedItemChanged="StandardDropDownChange"></StandardDropDownComponent>*@
+@*<p>@_selectedItem.Name</p>*@
 
 
-@*<p>Antd dropdown using Select component</p>
-<SelectDetailComponent Data="_selectNames"></SelectDetailComponent>
-*@
+<p>Antd dropdown using Select component</p>
+<SelectDetailComponent Data="_selectNames" CurrentValue="two" OnSelectedItem="StandardDropDownChange"></SelectDetailComponent>
+@*<TestSelect></TestSelect>*@
+
 @code {
     private SelectModel _selectedItem = new SelectModel();
 
@@ -18,12 +19,14 @@
         new SelectModel
         {
             Id = "one",
-            Name = "name one"
+            Name = "name one",
+            Disabled = false
         },
         new SelectModel
         {
             Id = "two",
-            Name = "name two"
+            Name = "name two",
+            Disabled = false
         },
         new SelectModel
         {
@@ -32,7 +35,7 @@
         new SelectModel
         {
             Id = "three",
-            Name = "name of three"
+            Name = "name three"
         }
     };
 

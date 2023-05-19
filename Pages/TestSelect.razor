@@ -1,0 +1,28 @@
+﻿@*@using AntDesign
+
+<SimpleSelect DefaultValue="Jono" Style="width:120px;" OnSelectedItemChanged="handleChange">
+    <SelectOptions>
+        <SimpleSelectOption Value="jack" Label="Jack" Disabled></SimpleSelectOption>
+        <SimpleSelectOption Value="lucy" Label="Lucy"></SimpleSelectOption>
+        <SimpleSelectOption Value="JonoD" Label="Jono" Disabled></SimpleSelectOption>
+        <SimpleSelectOption Value="Yiminghe" Label="yiminghe"></SimpleSelectOption>
+    </SelectOptions>
+</SimpleSelect>
+
+@code {
+    void handleChange(string value)
+    {
+        Console.WriteLine(value);
+    }
+
+    void handleItemsChange(IEnumerable<string> value)
+    {
+        Console.WriteLine(value);
+    }
+}*@
+
+<select id="styledSelect" class="blueText">
+    <option value="apple">Apple</option>
+    <option value="orange">Orange</option>
+    <option value="cherry">Cherry</option>
+</select>

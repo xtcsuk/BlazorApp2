@@ -62,3 +62,17 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+select {
+    position: relative;
+}
+
+/* Style by class. Effects the text of the contained options. */
+.blueText {
+    color: red;
+}
+
+/* Style by id. Effects position of the select drop down. */
+#styledSelect {
+    left: 100px;
+}
