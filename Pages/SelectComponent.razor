@@ -11,7 +11,7 @@
     <Select TItem="SelectModel"
         TItemValue="string"
         DataSource="@Data"
-        ValueName="@nameof(SelectModel.Name)"
+        ValueName="@nameof(SelectModel.Description)"
         LabelName="@nameof(SelectModel.Id)"
         DisabledName="@nameof(SelectModel.Disabled)"
         DefaultValue="@CurrentValue"
@@ -59,7 +59,7 @@
         }
         if (_selectedModel.Id != value.Id)
         {
-            Console.WriteLine($"selected: ${value?.Name}");
+            Console.WriteLine($"selected: ${value?.Description}");
             _selectedModel = value;
             if (OnSelectedItem.HasDelegate)
             {

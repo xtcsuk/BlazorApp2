@@ -41,6 +41,15 @@
 
     private void OnItemClicked(MenuItem value)
     {
-        // code to invoke
+        if (OnItemClick.HasDelegate)
+        {
+            var model = new DropDownModel
+                {
+                    Id = value.Id,
+                    Description = value.Title,
+                    Disabled = value.Disabled
+                };
+            OnItemClick.InvokeAsync(model);
+        }
     }
 }

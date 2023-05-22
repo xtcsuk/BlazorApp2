@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-
-namespace BlazorApp2.Models
+﻿namespace BlazorApp2.Models
 {
     public class DropDownModel
     {
@@ -11,7 +9,5 @@ namespace BlazorApp2.Models
         public bool Divider { get; set; } = false;
 
         public bool Disabled { get; set; } = false;
-
-        public EventCallback<DropDownModel> EventCallback { get; set; }
     }
 }

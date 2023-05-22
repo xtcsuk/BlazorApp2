@@ -6,7 +6,7 @@
     return;
 }
 
-<Dropdown Trigger="@(new Trigger[] { Trigger.Click })" >
+<Dropdown Trigger="@(new Trigger[] { Trigger.Click })">
     <Overlay>
         <Menu OnMenuItemClicked="OnItemClicked">
             @foreach (var item in Data)
@@ -18,13 +18,13 @@
                 else
                 {
                     <MenuItem Disabled="@item.Disabled" Id="@item.Id">@item.Description</MenuItem>
-                }                
+                }
             }
         </Menu>
     </Overlay>
     <ChildContent>
         <Button Class="greenOutlinedButton" Type="@ButtonType.Primary">
-            @ButtonCaption 
+            @ButtonCaption
             <Icon Class="ant-dropdown-link" Type="down" />
         </Button>
     </ChildContent>
@@ -42,6 +42,16 @@
 
     private void OnItemClicked(MenuItem value)
     {
-        // code to invoke
+        if (OnItemClick.HasDelegate)
+        {
+            var model = new DropDownModel
+                {
+                    Id = value.Id,
+                    Disabled = value.Disabled
+                };
+            var description = Data?.Single(m => m.Id.Equals(model.Id)).Description;
+            model.Description = description ?? string.Empty;
+            OnItemClick.InvokeAsync(model);
+        }
     }
 }

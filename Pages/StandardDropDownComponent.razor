@@ -5,11 +5,11 @@
     {
         if (item.Disabled)
         {
-            <option disabled value="@item.Id">@item.Name</option>
+            <option disabled value="@item.Id">@item.Description</option>
         }
         else
         {
-            <option class="" value="@item.Id" selected="@(CurrentValue.Equals(item.Id))">@item.Name</option>
+            <option class="" value="@item.Id" selected="@(CurrentValue.Equals(item.Id))">@item.Description</option>
         }
     }
 </select>

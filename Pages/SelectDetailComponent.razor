@@ -13,13 +13,15 @@
     The label of the selected item will be packed as an string (JSON) for passing to the OnSelectedItemChanged callback. 
     This function is only available when the SelectOptions are created without a DataStore.
 *@
+
+@*@(item => OnSelectedItemChanged(ConvertToSelectModel(item)))*@
 <Select DefaultValue="@CurrentValue"
         Id="antdSelect"
         DropdownMatchSelectWidth="true"
         TItem="string"
         TItemValue="string"
-        LabelInValue="true"
-        OnSelectedItemChanged="@(item => OnSelectedItemChanged(ConvertToSelectModel(item)))" Disabled="@Disabled">
+        LabelInValue="false"
+        OnSelectedItemChanged="ItemClicked" Disabled="@Disabled">
 
     <SelectOptions>
         @foreach (var item in Data)
@@ -33,9 +35,9 @@
                 <SelectOption Class="@OptionCssClass"
                       TItemValue="string"
                       TItem="string"
-                      Value="@item.Id"
-                      Label="@item.Name"
-                      Disabled=@item.Disabled                      
+                      Value="@item.Description"
+                      Label="@item.Id"
+                      Disabled=@item.Disabled
                 >
                 </SelectOption>
             }
@@ -44,8 +46,10 @@
 </Select>
 
 @code {
+    private string _currentValue = string.Empty;
+
     [Parameter]
-    public IEnumerable<SelectModel>? Data { get; set; }
+    public IEnumerable<SelectModel> Data { get; set; } = new List<SelectModel>();
 
     [Parameter]
     public string LabelCaption { get; set; } = string.Empty;
@@ -60,25 +64,47 @@
     public string OptionCssClass { get; set; } = string.Empty;
 
     [Parameter]
-    public EventCallback<SelectModel> OnSelectedItem { get; set; }
+    public EventCallback<SelectModel> OnItemClick { get; set; }
 
-    private SelectModel ConvertToSelectModel(string jsonString)
+    protected override void OnInitialized()
     {
-        var value = jsonString.Replace("value", "Id").Replace("label", "Name");
-        var result = JsonSerializer.Deserialize<SelectModel>(value);
-        return result ?? new SelectModel();
+        _currentValue = CurrentValue;
     }
+    //private SelectModel ConvertToSelectModel(string jsonString)
+    //{
+    //    var value = jsonString.Replace("value", "Id").Replace("label", "Name");
+    //    var result = JsonSerializer.Deserialize<SelectModel>(value);
+    //    return result ?? new SelectModel();
+    //}
 
-    private void OnSelectedItemChanged(SelectModel value)
+    private void ItemClicked(string value)
     {
-        if (!CurrentValue.Equals(value.Id))
+        if (value != null && !_currentValue.Equals(value))
         {
-            CurrentValue = value.Id;
-            if (OnSelectedItem.HasDelegate)
+            _currentValue = value;
+            var selectedModel = Data.Single(m => m.Description.Equals(value));
+            var returnModel = new SelectModel
+                {
+                    Id = selectedModel.Id,
+                    Disabled = selectedModel.Disabled,
+                    Description = selectedModel.Description,
+                    Divider = selectedModel.Divider
+                };
+            if (OnItemClick.HasDelegate)
             {
-                OnSelectedItem.InvokeAsync(value);
+                OnItemClick.InvokeAsync(returnModel);
             }
         }
-
     }
+    //private void OnSelectedItemChanged(SelectModel value)
+    //{
+    //    if (!CurrentValue.Equals(value.Id))
+    //    {
+    //        CurrentValue = value.Id;
+    //        if (OnSelectedItem.HasDelegate)
+    //        {
+    //            OnSelectedItem.InvokeAsync(value);
+    //        }
+    //    }
+    //}
 }    

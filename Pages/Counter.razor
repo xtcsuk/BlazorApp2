@@ -8,25 +8,46 @@
 
 
 <p>Antd dropdown using Select component</p>
-<SelectDetailComponent Data="_selectNames" CurrentValue="two" OnSelectedItem="StandardDropDownChange"></SelectDetailComponent>
+<SelectDetailComponent Data="_selectNames" CurrentValue="1" OnItemClick="StandardDropDownChange"></SelectDetailComponent>
 @*<TestSelect></TestSelect>*@
+
+@*<DropDownComponent Data="@_dropItems" ButtonCaption="Cick me" OnItemClick="DropDownClick"></DropDownComponent>*@
 
 @code {
     private SelectModel _selectedItem = new SelectModel();
+
+    private IEnumerable<DropDownModel> _dropItems = new List<DropDownModel>
+    {
+        new DropDownModel
+        {
+            Id = "1",
+            Description = "test"
+        },
+        new DropDownModel
+        {
+            Divider = true
+        },
+        new DropDownModel
+        {
+            Id = "2",
+            Description = "Two",
+            Disabled = false
+        }
+    };
 
     private IEnumerable<SelectModel> _selectNames = new List<SelectModel>
     {
         new SelectModel
         {
             Id = "one",
-            Name = "name one",
+            Description = "name one",
             Disabled = false
         },
         new SelectModel
         {
             Id = "two",
-            Name = "name two",
-            Disabled = false
+            Description = "name two",
+            Disabled = true
         },
         new SelectModel
         {
@@ -35,12 +56,17 @@
         new SelectModel
         {
             Id = "three",
-            Name = "name three"
+            Description = "name three"
         }
     };
 
     private void StandardDropDownChange(SelectModel model)
     {
         _selectedItem = model;
+    }
+
+    private void DropDownClick(DropDownModel model)
+    {
+        
     }
 }
