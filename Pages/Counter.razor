@@ -3,18 +3,35 @@
 @using BlazorApp2.Models;
 
 @*<p>standard dropdown</p>
-<StandardDropDownComponent Data="_selectNames" CurrentValue="two" OnSelectedItemChanged="StandardDropDownChange"></StandardDropDownComponent>*@
-@*<p>@_selectedItem.Name</p>*@
+<StandardDropDownComponent Data="_selectNames" CurrentValue="one" OnSelectedItemChanged="StandardDropDownChange"></StandardDropDownComponent>*@
 
+
+<br/>
+<br/>
+<br/>
 
 <p>Antd dropdown using Select component</p>
-<SelectDetailComponent Data="_selectNames" CurrentValue="1" OnItemClick="StandardDropDownChange"></SelectDetailComponent>
-@*<TestSelect></TestSelect>*@
+<SelectDetailComponent Data="_selectNames" CurrentValue="@_selectedItem?.Id" OnItemClick="StandardDropDownChange"></SelectDetailComponent>
 
 @*<DropDownComponent Data="@_dropItems" ButtonCaption="Cick me" OnItemClick="DropDownClick"></DropDownComponent>*@
 
+
+<br/>
+<b/>
+<br/>
+<br/>
+<br/>
+
+@if (_testVisible)
+{
+    <p>Changed: @_changedCounter</p>
+    <p>@_selectedItem?.Description</p>
+}
+
 @code {
-    private SelectModel _selectedItem = new SelectModel();
+    private SelectModel? _selectedItem = new SelectModel();
+    private int _changedCounter = 0;
+    private bool _testVisible = false;
 
     private IEnumerable<DropDownModel> _dropItems = new List<DropDownModel>
     {
@@ -47,7 +64,7 @@
         {
             Id = "two",
             Description = "name two",
-            Disabled = true
+            Disabled = false
         },
         new SelectModel
         {
@@ -63,10 +80,18 @@
     private void StandardDropDownChange(SelectModel model)
     {
         _selectedItem = model;
+        _testVisible = true;
+        _changedCounter++;
+        _selectedItem.Id = "three";
     }
 
     private void DropDownClick(DropDownModel model)
     {
-        
+
+    }
+
+    protected override void OnInitialized()
+    {
+        _selectedItem = _selectNames.FirstOrDefault(m => m.Id.Equals("one"));
     }
 }
