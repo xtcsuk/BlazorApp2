@@ -1,71 +1,37 @@
 ﻿@using AntDesign
-@using BlazorApp2.Models;
 
-@if (Data != null)
+@if (Data == null)
 {
-    if (string.IsNullOrWhiteSpace(LabelCaption))
-    {
-        // caption
-    }
+    return;
+}
 
-    <Select TItem="SelectModel"
+<Select DefaultValue="@CurrentValue"
+        Id="antdSelect"
+        DropdownMatchSelectWidth="true"
+        TItem="string"
         TItemValue="string"
-        DataSource="@Data"
-        ValueName="@nameof(SelectModel.Description)"
-        LabelName="@nameof(SelectModel.Id)"
-        DisabledName="@nameof(SelectModel.Disabled)"
-        DefaultValue="@CurrentValue"
-        Class=""
-        Style=""
-        OnSelectedItemChanged="OnSelectedItemChanged">
-    </Select>
-}
+        LabelInValue="false"
+        @bind-Value="@_currentValue"
+        OnSelectedItemChanged="ItemClicked" Disabled="@Disabled">
 
-
-@code {
-    private SelectModel? _selectedModel;
-
-    [Parameter]
-    public IEnumerable<SelectModel>? Data { get; set; }
-
-    [Parameter]
-    public string LabelCaption { get; set; } = string.Empty;
-
-    [Parameter]
-    public string CurrentValue { get; set; } = string.Empty;
-    [Parameter]
-    public EventCallback<SelectModel> OnSelectedItem { get; set; }
-
-
-    private void OnSelectedItemChanged(SelectModel value)
-    {
-        if (!string.IsNullOrWhiteSpace(CurrentValue))
+    <SelectOptions>
+        @foreach (var item in Data)
         {
-            var item = Data?.FirstOrDefault(m => m.Id.Equals(CurrentValue));
-            if (item != null)
+            if (item.Divider)
             {
-                _selectedModel = item;
+                <Divider />
+            }
+            else
+            {
+                <SelectOption Class="@OptionCssClass"
+                      TItemValue="string"
+                      TItem="string"
+                      Value="@item.Id"
+                      Label="@item.Description"
+                      Disabled=@item.Disabled
+                >
+                </SelectOption>
             }
         }
-
-        if (_selectedModel == null)
-        {
-            _selectedModel = value;
-            if (OnSelectedItem.HasDelegate)
-            {
-                OnSelectedItem.InvokeAsync(value);
-            }
-            return;
-        }
-        if (_selectedModel.Id != value.Id)
-        {
-            Console.WriteLine($"selected: ${value?.Description}");
-            _selectedModel = value;
-            if (OnSelectedItem.HasDelegate)
-            {
-                OnSelectedItem.InvokeAsync(value);
-            }
-        }
-    }
-}
-
+    </SelectOptions>
+</Select>

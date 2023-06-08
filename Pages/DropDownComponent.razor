@@ -1,57 +1,41 @@
 ﻿@using AntDesign;
-@using BlazorApp2.Models;
 
 @if (Data == null)
 {
     return;
 }
 
-<Dropdown Trigger="@(new Trigger[] { Trigger.Click })">
-    <Overlay>
-        <Menu OnMenuItemClicked="OnItemClicked">
-            @foreach (var item in Data)
-            {
-                if (item.Divider)
-                {
-                    <MenuDivider />
-                }
-                else
-                {
-                    <MenuItem Disabled="@item.Disabled" Id="@item.Id">@item.Description</MenuItem>
-                }
-            }
-        </Menu>
-    </Overlay>
-    <ChildContent>
-        <Button Class="greenOutlinedButton" Type="@ButtonType.Primary">
-            @ButtonCaption
-            <Icon Class="ant-dropdown-link" Type="down" />
-        </Button>
-    </ChildContent>
-</Dropdown>
+@if (!string.IsNullOrWhiteSpace(AuthorizedRoles))
+{
+    <AuthorizeView Roles="@AuthorizedRoles">
+        <Authorized>
+            <Dropdown Trigger="@(new Trigger[] { Trigger.Click })">
+                <Overlay>
+                    <Menu OnMenuItemClicked="OnItemClicked">
+                        @foreach (var item in Data)
+                        {
+                            if (item.Divider)
+                            {
+                                <MenuDivider />
+                            }
+                            else
+                            {
+                                <MenuItem Disabled="@item.Disabled" Id="@item.Id">@item.Description</MenuItem>
+                            }
+                        }
+                    </Menu>
+                </Overlay>
+                <ChildContent>
+                    <Button Class="greenOutlinedButton" Type="@ButtonType.Primary">
+                        @ButtonCaption
+                        <Icon Class="ant-dropdown-link" Type="down" />
+                    </Button>
+                </ChildContent>
+            </Dropdown>
+        </Authorized>
+        <NotAuthorized>
 
-@code {
-    [Parameter]
-    public IEnumerable<DropDownModel>? Data { get; set; }
-
-    [Parameter]
-    public string ButtonCaption { get; set; } = "No Caption";
-
-    [Parameter]
-    public EventCallback<DropDownModel> OnItemClick { get; set; }
-
-    private void OnItemClicked(MenuItem value)
-    {
-        if (OnItemClick.HasDelegate)
-        {
-            var model = new DropDownModel
-                {
-                    Id = value.Id,
-                    Disabled = value.Disabled
-                };
-            var description = Data?.Single(m => m.Id.Equals(model.Id)).Description;
-            model.Description = description ?? string.Empty;
-            OnItemClick.InvokeAsync(model);
-        }
-    }
+        </NotAuthorized>
+    </AuthorizeView>
 }
+

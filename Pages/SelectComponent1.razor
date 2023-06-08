@@ -1,0 +1,71 @@
+﻿@using AntDesign
+@using BlazorApp2.Models;
+
+@if (Data != null)
+{
+    if (string.IsNullOrWhiteSpace(LabelCaption))
+    {
+        // caption
+    }
+
+    <Select TItem="SelectModel"
+        TItemValue="string"
+        DataSource="@Data"
+        ValueName="@nameof(SelectModel.Description)"
+        LabelName="@nameof(SelectModel.Id)"
+        DisabledName="@nameof(SelectModel.Disabled)"
+        DefaultValue="@CurrentValue"
+        Class=""
+        Style=""
+        OnSelectedItemChanged="OnSelectedItemChanged">
+    </Select>
+}
+
+
+@code {
+    private SelectModel? _selectedModel;
+
+    [Parameter]
+    public IEnumerable<SelectModel>? Data { get; set; }
+
+    [Parameter]
+    public string LabelCaption { get; set; } = string.Empty;
+
+    [Parameter]
+    public string CurrentValue { get; set; } = string.Empty;
+    [Parameter]
+    public EventCallback<SelectModel> OnSelectedItem { get; set; }
+
+
+    private void OnSelectedItemChanged(SelectModel value)
+    {
+        if (!string.IsNullOrWhiteSpace(CurrentValue))
+        {
+            var item = Data?.FirstOrDefault(m => m.Id.Equals(CurrentValue));
+            if (item != null)
+            {
+                _selectedModel = item;
+            }
+        }
+
+        if (_selectedModel == null)
+        {
+            _selectedModel = value;
+            if (OnSelectedItem.HasDelegate)
+            {
+                OnSelectedItem.InvokeAsync(value);
+            }
+            return;
+        }
+        if (_selectedModel.Id != value.Id)
+        {
+            Console.WriteLine($"selected: ${value?.Description}");
+            _selectedModel = value;
+            if (OnSelectedItem.HasDelegate)
+            {
+                OnSelectedItem.InvokeAsync(value);
+            }
+        }
+    }
+}
+

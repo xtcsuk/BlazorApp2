@@ -10,8 +10,11 @@
 <br/>
 <br/>
 
-<p>Antd dropdown using Select component</p>
-<SelectDetailComponent Data="_selectNames" CurrentValue="@_selectedItem?.Id" OnItemClick="StandardDropDownChange"></SelectDetailComponent>
+@if (_selectedItem != null)
+{
+    <p>Antd dropdown using Select component</p>
+    <SelectComponent Data="_selectNames" CurrentValue="@_selectedItem?.Id" OnItemClick="StandardDropDownChange"></SelectComponent>
+}
 
 @*<DropDownComponent Data="@_dropItems" ButtonCaption="Cick me" OnItemClick="DropDownClick"></DropDownComponent>*@
 
@@ -82,7 +85,7 @@
         _selectedItem = model;
         _testVisible = true;
         _changedCounter++;
-        _selectedItem.Id = "three";
+        //_selectedItem.Id = "one";
     }
 
     private void DropDownClick(DropDownModel model)
