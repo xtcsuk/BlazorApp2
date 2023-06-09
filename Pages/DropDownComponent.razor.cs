@@ -1,6 +1,7 @@
 ﻿using AntDesign;
 using BlazorApp2.Models;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BlazorApp2.Pages
 {
@@ -18,8 +19,28 @@ namespace BlazorApp2.Pages
         [Parameter]
         public EventCallback<DropDownModel> OnItemClick { get; set; }
 
+        [CascadingParameter]
+        private Task<AuthenticationState>? _authenticaionStateTask { get; set; }
+
+        private bool _userHasAuthorization = true;
+
+        protected override async Task OnInitializedAsync()
+        {
+            if (_authenticaionStateTask != null)
+            {
+                var user = (await _authenticaionStateTask).User;
+
+                if (!string.IsNullOrWhiteSpace(AuthorizedRoles))
+                {
+                    _userHasAuthorization = user.IsInRole(AuthorizedRoles);
+                }
+            }
+        }
+
         private void OnItemClicked(MenuItem value)
         {
+            if (!_userHasAuthorization) return;
+
             if (OnItemClick.HasDelegate)
             {
                 var model = new DropDownModel

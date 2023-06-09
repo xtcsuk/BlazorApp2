@@ -1,11 +1,13 @@
 ﻿using BlazorApp2.Models;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BlazorApp2.Pages
 {
     public partial class SelectComponent
     {
-        private string _currentValue = string.Empty;
+        [Parameter]
+        public string? AuthorizedRoles { get; set; }
 
         [Parameter]
         public IEnumerable<SelectModel> Data { get; set; } = new List<SelectModel>();
@@ -25,8 +27,30 @@ namespace BlazorApp2.Pages
         [Parameter]
         public EventCallback<SelectModel> OnItemClick { get; set; }
 
+        [CascadingParameter]
+        private Task<AuthenticationState>? _authenticaionStateTask { get; set; }
+
+        private bool _userHasAuthorization = true;
+
+        private string _currentValue = string.Empty;
+
+        protected override async Task OnInitializedAsync()
+        {
+            if (_authenticaionStateTask != null)
+            {
+                var user = (await _authenticaionStateTask).User;
+
+                if (!string.IsNullOrWhiteSpace(AuthorizedRoles))
+                {
+                    _userHasAuthorization = user.IsInRole(AuthorizedRoles);
+                }
+            }
+        }
+
         private void ItemClicked(string value)
         {
+            if (!_userHasAuthorization) return;
+
             if (value != null && !CurrentValue.Equals(value))
             {
                 var selectedModel = Data.Single(m => m.Id.Equals(value));

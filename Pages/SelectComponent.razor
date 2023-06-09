@@ -23,14 +23,26 @@
             }
             else
             {
-                <SelectOption Class="@OptionCssClass"
+                @if(_userHasAuthorization)
+                {
+                    <SelectOption Class="@OptionCssClass"
                       TItemValue="string"
                       TItem="string"
                       Value="@item.Id"
                       Label="@item.Description"
-                      Disabled=@item.Disabled
-                >
-                </SelectOption>
+                      Disabled="@item.Disabled">
+                    </SelectOption>
+                }
+                else
+                {
+                    <SelectOption Class="@OptionCssClass"
+                      TItemValue="string"
+                      TItem="string"
+                      Value="@item.Id"
+                      Label="@item.Description"
+                      Disabled="false">
+                    </SelectOption>
+                }
             }
         }
     </SelectOptions>

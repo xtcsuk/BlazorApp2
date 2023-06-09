@@ -5,7 +5,39 @@
     return;
 }
 
-@if (!string.IsNullOrWhiteSpace(AuthorizedRoles))
+<Dropdown Trigger="@(new Trigger[] { Trigger.Click })">
+    <Overlay>
+        <Menu OnMenuItemClicked="OnItemClicked">
+            @foreach (var item in Data)
+            {
+                if (item.Divider)
+                {
+                    <MenuDivider />
+                }
+                else
+                {
+                    if(_userHasAuthorization)
+                    {
+                        <MenuItem Disabled="@item.Disabled" Id="@item.Id">@item.Description</MenuItem>
+                    }
+                    else
+                    {
+                        <MenuItem Disabled="true" Id="@item.Id">@item.Description</MenuItem>
+                    }
+                }
+            }
+        </Menu>
+    </Overlay>
+    <ChildContent>
+        <Button Class="greenOutlinedButton" Type="@ButtonType.Primary">
+            @ButtonCaption
+            <Icon Class="ant-dropdown-link" Type="down" />
+        </Button>
+    </ChildContent>
+</Dropdown>
+
+
+@*@if (!string.IsNullOrWhiteSpace(AuthorizedRoles))
 {
     <AuthorizeView Roles="@AuthorizedRoles">
         <Authorized>
@@ -38,4 +70,4 @@
         </NotAuthorized>
     </AuthorizeView>
 }
-
+*@
