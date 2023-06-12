@@ -22,24 +22,26 @@ namespace BlazorApp2.Pages
         [CascadingParameter]
         private Task<AuthenticationState>? _authenticaionStateTask { get; set; }
 
-        private bool _userHasAuthorization = true;
+        private bool _userIsAuthorized = false;
 
         protected override async Task OnInitializedAsync()
         {
+            if (string.IsNullOrWhiteSpace(AuthorizedRoles))
+            {
+                _userIsAuthorized = true;
+                return;
+            }
+
             if (_authenticaionStateTask != null)
             {
                 var user = (await _authenticaionStateTask).User;
-
-                if (!string.IsNullOrWhiteSpace(AuthorizedRoles))
-                {
-                    _userHasAuthorization = user.IsInRole(AuthorizedRoles);
-                }
+                _userIsAuthorized = user.IsInRole(AuthorizedRoles);
             }
         }
 
         private void OnItemClicked(MenuItem value)
         {
-            if (!_userHasAuthorization) return;
+            if (!_userIsAuthorized) return;
 
             if (OnItemClick.HasDelegate)
             {

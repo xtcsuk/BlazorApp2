@@ -23,16 +23,17 @@
             }
             else
             {
-                @if(_userHasAuthorization)
-                {
+                var disabled = @_userIsAuthorized ? @item.Disabled : false;
+                //@if(_userIsAuthorized)
+                //{
                     <SelectOption Class="@OptionCssClass"
                       TItemValue="string"
                       TItem="string"
                       Value="@item.Id"
                       Label="@item.Description"
-                      Disabled="@item.Disabled">
+                      Disabled="@disabled">
                     </SelectOption>
-                }
+@*                }
                 else
                 {
                     <SelectOption Class="@OptionCssClass"
@@ -42,7 +43,7 @@
                       Label="@item.Description"
                       Disabled="false">
                     </SelectOption>
-                }
+                }*@
             }
         }
     </SelectOptions>
