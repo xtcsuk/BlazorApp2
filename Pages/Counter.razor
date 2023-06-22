@@ -6,24 +6,29 @@
 <StandardDropDownComponent Data="_selectNames" CurrentValue="one" OnSelectedItemChanged="StandardDropDownChange"></StandardDropDownComponent>*@
 
 
-<br/>
-<br/>
-<br/>
+<br />
+<br />
+<br />
 
-@if (_selectedItem != null)
+@*@if (_selectedItem != null)
 {
     <p>Antd dropdown using Select component</p>
     <SelectComponent Data="_selectNames" CurrentValue="@_selectedItem?.Id" OnItemClick="StandardDropDownChange"></SelectComponent>
-}
+}*@
 
 @*<DropDownComponent Data="@_dropItems" ButtonCaption="Cick me" OnItemClick="DropDownClick"></DropDownComponent>*@
 
+@*<AntDesignTextAreaComponent></AntDesignTextAreaComponent>*@
 
-<br/>
-<b/>
-<br/>
-<br/>
-<br/>
+@*<AntDesignFormValidation></AntDesignFormValidation>*@
+<AntDesignAutoCompleteComponent Data="@autoCompleteData"></AntDesignAutoCompleteComponent>
+
+
+<br />
+<b />
+<br />
+<br />
+<br />
 
 @if (_testVisible)
 {
@@ -35,6 +40,13 @@
     private SelectModel? _selectedItem = new SelectModel();
     private int _changedCounter = 0;
     private bool _testVisible = false;
+
+    List<string> autoCompleteFetchedData = new List<string>()
+    {
+        "Beijing","Shanghai","Guangzhou","Shenzhen","Chongqing","Wuhan"
+    };
+
+    IEnumerable<string> autoCompleteData = new List<string>();
 
     private IEnumerable<DropDownModel> _dropItems = new List<DropDownModel>
     {
@@ -97,4 +109,11 @@
     {
         _selectedItem = _selectNames.FirstOrDefault(m => m.Id.Equals("one"));
     }
+
+    private void AutoCompleteOnInput(string value)
+    {
+        autoCompleteData = autoCompleteFetchedData.Where(d => d.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+    
+
 }

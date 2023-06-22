@@ -1,0 +1,9 @@
+﻿@using AntDesign
+
+<AutoComplete 
+    @bind-Value="@value" 
+    Options="@Data" 
+    OnSelectionChange="OnSelectionChange" 
+    OnInput="OnInputChangeAsync"
+    Placeholder="@PlaceholderCaption" 
+    />

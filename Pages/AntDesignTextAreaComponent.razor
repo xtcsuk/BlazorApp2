@@ -2,9 +2,13 @@
 
 <h3>AntDesignTextArea</h3>
 
-<TextArea Rows="3"></TextArea>
+@if(test)
+{
+    <TextArea Rows="3"></TextArea>
+}
+
 @*<input value="input test"/>*@
 
 @code {
-
+    private bool test = true;
 }
