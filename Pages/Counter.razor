@@ -1,6 +1,9 @@
 ﻿@page "/counter"
 @using AntDesign;
 @using BlazorApp2.Models;
+@using BlazorApp2.Services;
+
+@inject IPostcodeSearch PostcodeSearchService
 
 @*<p>standard dropdown</p>
 <StandardDropDownComponent Data="_selectNames" CurrentValue="one" OnSelectedItemChanged="StandardDropDownChange"></StandardDropDownComponent>*@
@@ -21,8 +24,14 @@
 @*<AntDesignTextAreaComponent></AntDesignTextAreaComponent>*@
 
 @*<AntDesignFormValidation></AntDesignFormValidation>*@
-<AntDesignAutoCompleteComponent Data="@autoCompleteData"></AntDesignAutoCompleteComponent>
 
+<ErrorBoundary>
+    <AntDesignAutoCompleteComponent Data="@autoCompleteData"
+                                    OnInput="@AutoCompleteOnInput"
+                                    PlaceholderCaption="Enter postcode">
+
+    </AntDesignAutoCompleteComponent>
+</ErrorBoundary>
 
 <br />
 <b />
@@ -110,10 +119,11 @@
         _selectedItem = _selectNames.FirstOrDefault(m => m.Id.Equals("one"));
     }
 
-    private void AutoCompleteOnInput(string value)
+    private async Task AutoCompleteOnInput(string value)
     {
+        var data = await PostcodeSearchService.JsonFormat("gx11-fz37-mg29-dw69", value, false, "", "", "", 10, "", false, "", "");
         autoCompleteData = autoCompleteFetchedData.Where(d => d.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
-    
+
 
 }

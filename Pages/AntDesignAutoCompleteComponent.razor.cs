@@ -23,15 +23,15 @@ namespace BlazorApp2.Pages
 
         async Task OnInputChangeAsync(ChangeEventArgs e)
         {
-            string varlue = e.Value?.ToString() ?? string.Empty;
+            var newValue = e.Value?.ToString() ?? string.Empty;
 
-            if (string.IsNullOrEmpty(value) || !OnInput.HasDelegate)
+            if (string.IsNullOrEmpty(newValue) || !OnInput.HasDelegate)
             {
                 return;
             }
 
-            await OnInput.InvokeAsync(value);
+            await OnInput.InvokeAsync(newValue);
+            StateHasChanged();
         }
-
     }
 }
