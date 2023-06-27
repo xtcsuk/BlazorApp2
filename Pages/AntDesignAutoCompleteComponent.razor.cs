@@ -14,11 +14,20 @@ namespace BlazorApp2.Pages
         public EventCallback<string> OnInput { get; set; }
 
         [Parameter]
+        public EventCallback<string> OnSelectionChange { get; set; }
+
+        [Parameter]
         public IEnumerable<string> Data { get; set; } = new List<string>();
 
-        void OnSelectionChange(AutoCompleteOption item)
+        async Task OnChangeAsync(AutoCompleteOption item)
         {
             value = (string)item.Value;
+
+            if (OnSelectionChange.HasDelegate)
+            {
+                await OnSelectionChange.InvokeAsync(value);
+                StateHasChanged();
+            }
         }
 
         async Task OnInputChangeAsync(ChangeEventArgs e)

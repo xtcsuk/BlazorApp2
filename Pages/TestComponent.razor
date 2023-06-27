@@ -1,0 +1,20 @@
+﻿@using AntDesign
+
+<Divider>Input</Divider>
+<AutoComplete Options="@options">
+    <div>
+        <AutoCompleteInput Placeholder="input here" @bind-Value="@inputValue" />
+        <Spin></Spin>
+    </div>
+    
+</AutoComplete>
+
+@code
+{
+    private string inputValue;
+    private string searchValue;
+
+    List<string> options = new List<string>(){
+        "Beijing","Shanghai","Guangzhou","Shenzhen","Chongqing","Wuhan"
+    };
+}

@@ -25,14 +25,17 @@
 
 @*<AntDesignFormValidation></AntDesignFormValidation>*@
 
-<ErrorBoundary>
-    <AntDesignAutoCompleteComponent Data="@autoCompleteData"
-                                    OnInput="@AutoCompleteOnInput"
-                                    PlaceholderCaption="Enter postcode">
+<AntDesignAutoCompleteComponent Data="@autoCompleteData"
+                                OnInput="@AutoCompleteOnInput"
+                                OnSelectionChange="@AutoCompleteOnSelectionChange"
+                                PlaceholderCaption="Enter postcode">
+</AntDesignAutoCompleteComponent>
 
-    </AntDesignAutoCompleteComponent>
-</ErrorBoundary>
-
+<br />
+<Divider />
+<p>Total number of address: @autoCompleteData.Count()</p>
+@*<TestComponent></TestComponent>
+*@
 <br />
 <b />
 <br />
@@ -46,6 +49,7 @@
 }
 
 @code {
+
     private SelectModel? _selectedItem = new SelectModel();
     private int _changedCounter = 0;
     private bool _testVisible = false;
@@ -121,8 +125,17 @@
 
     private async Task AutoCompleteOnInput(string value)
     {
-        var data = await PostcodeSearchService.JsonFormat("gx11-fz37-mg29-dw69", value, false, "", "", "", 10, "", false, "", "");
-        autoCompleteData = autoCompleteFetchedData.Where(d => d.Contains(value, StringComparison.OrdinalIgnoreCase));
+        var data = await PostcodeSearchService.GetDataAsync(value, 10);
+        autoCompleteData = data; //autoCompleteFetchedData.Where(d => d.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task AutoCompleteOnSelectionChange(string value)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            var data = await PostcodeSearchService.GetAddressAsync(value);
+            autoCompleteData = data;
+        }
     }
 
 

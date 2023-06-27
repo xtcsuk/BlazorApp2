@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
-builder.Services.AddHttpClient<IPostcodeSearch, PostcodeSearchService>(hc =>
+builder.Services.AddHttpClient<IPostcodeSearch, LoqatePostcodeSearchService>(hc =>
 {
 	hc.BaseAddress = new Uri("https://api.addressy.com/Capture/Interactive/Find/v1.10/json3.ws?Key=GX11-FZ37-MG29-DW69");
 });
