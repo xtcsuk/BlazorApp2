@@ -25,7 +25,7 @@
 
 @*<AntDesignFormValidation></AntDesignFormValidation>*@
 
-<AntDesignAutoCompleteComponent Data="@autoCompleteData"
+@*<AntDesignAutoCompleteComponent Data="@autoCompleteData"
                                 OnInput="@AutoCompleteOnInput"
                                 OnSelectionChange="@AutoCompleteOnSelectionChange"
                                 PlaceholderCaption="Enter postcode">
@@ -33,9 +33,12 @@
 
 <br />
 <Divider />
-<p>Total number of address: @autoCompleteData.Count()</p>
-@*<TestComponent></TestComponent>
-*@
+<p>Total number of address: @autoCompleteData?.Count()</p>*@
+
+@*<TestComponent></TestComponent>*@
+
+<CustomAutoCompleteComponent></CustomAutoCompleteComponent>
+
 <br />
 <b />
 <br />
@@ -135,6 +138,7 @@
         {
             var data = await PostcodeSearchService.GetAddressAsync(value);
             autoCompleteData = data;
+            //StateHasChanged();
         }
     }
 

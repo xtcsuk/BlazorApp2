@@ -1,11 +1,13 @@
 ﻿using AntDesign;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace BlazorApp2.Pages
 {
     public partial class AntDesignAutoCompleteComponent
     {
         private string? value;
+        private IEnumerable<string>? _data;
 
         [Parameter]
         public string? PlaceholderCaption { get; set; } = string.Empty;
@@ -19,6 +21,12 @@ namespace BlazorApp2.Pages
         [Parameter]
         public IEnumerable<string> Data { get; set; } = new List<string>();
 
+        private AutoComplete<string>? _autoComplete;
+
+        protected override void OnParametersSet()
+        {
+            _data = Data;
+        }
         async Task OnChangeAsync(AutoCompleteOption item)
         {
             value = (string)item.Value;
@@ -26,7 +34,12 @@ namespace BlazorApp2.Pages
             if (OnSelectionChange.HasDelegate)
             {
                 await OnSelectionChange.InvokeAsync(value);
-                StateHasChanged();
+                await _autoComplete?.InputValueChange(string.Empty);
+                var args = new FocusEventArgs();
+                //_autoComplete?.
+                //await _autoComplete?.InputFocus(args);
+                //var args = new KeyboardEventArgs { Key = 49.ToString() };
+                //_autoComplete?.InputKeyDown(args);
             }
         }
 
@@ -40,7 +53,7 @@ namespace BlazorApp2.Pages
             }
 
             await OnInput.InvokeAsync(newValue);
-            StateHasChanged();
+            //StateHasChanged();
         }
     }
 }

@@ -1,0 +1,29 @@
+﻿@using BlazorApp2.Services;
+
+@inject HttpClient http
+@inject IPostcodeSearch postcodeSearchService
+
+@if (OptionList == null)
+{
+    return;
+}
+
+<h3>Autocomplete Demo</h3>
+<div class="autocomplete">
+    <input @bind=selectedOption @oninput=DoOnInputCallBack class="ant-input" />
+    <ul class="options">
+        @foreach (var option in OptionList)
+        {
+            <li class="option">
+                <span class="option-text" @onclick=@(_ => DoOnSelectedOptionCallback(option))>@option</span>
+            </li>
+        }
+    </ul>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(selectedOption))
+{
+    <p class="mt-3">
+        Selected customer is @selectedOption with ID <strong>@selectedCustomerId</strong>
+    </p>
+}

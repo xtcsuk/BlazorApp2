@@ -1,8 +1,14 @@
 ﻿@using AntDesign
 
+@if (_data == null)
+{
+    return;
+}
+
 <AutoComplete 
+    @ref="@_autoComplete"
     @bind-Value="@value" 
-    Options="@Data" 
+    Options="@_data" 
     OnSelectionChange="OnChangeAsync" 
     OnInput="OnInputChangeAsync"
     Placeholder="@PlaceholderCaption"

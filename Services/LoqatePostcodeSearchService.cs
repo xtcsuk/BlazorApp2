@@ -77,8 +77,7 @@ namespace BlazorApp2.Services
                 // return
             }
 
-            var text = $"{model.Id}{model.Type}{model.Text}{model.Highlight}{model.Description}";
-            var url = $"{_httpClient.BaseAddress}&Text={text}{_urlConstantParams}";
+            var url = $"{_httpClient.BaseAddress}&Container={model.Id}&{_urlConstantParams}";
 
             _loqatePostcodeSearchResponse = await DoGetDataAsync(url);
 
