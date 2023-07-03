@@ -1,20 +1,20 @@
-﻿using System.Collections;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
 using System.Globalization;
+using System.Net;
+using System.Net.Http;
 using System.Text.Json;
 
 namespace BlazorApp2.Services
 {
     public class LoqatePostcodeSearchService : IPostcodeSearch
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private LoqatePostcodeSearchResponse _loqatePostcodeSearchResponse;
         private const string _urlConstantParams = "&IsMiddleware=false&Countries=GBR&Language=en-gb";
 
-        public LoqatePostcodeSearchService(HttpClient httpClient)
+        public LoqatePostcodeSearchService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _loqatePostcodeSearchResponse = new LoqatePostcodeSearchResponse();
         }
 
@@ -55,9 +55,14 @@ namespace BlazorApp2.Services
 
         public async Task<IEnumerable<string>> GetDataAsync(string searchText, int limit)
         {
-            var url = $"{_httpClient.BaseAddress}&Text={searchText}&Limit={limit}{_urlConstantParams}";
+            using var httpClient = _httpClientFactory.CreateClient("PostcodeSearch");
 
-            _loqatePostcodeSearchResponse = await DoGetDataAsync(url);
+            var url = $"{httpClient.BaseAddress}&Text={searchText}&Limit={limit}{_urlConstantParams}";
+
+            var apiContent = await DoGetDataAsync(httpClient, url);
+
+            _loqatePostcodeSearchResponse = JsonSerializer.Deserialize<LoqatePostcodeSearchResponse>(apiContent)
+                ?? new LoqatePostcodeSearchResponse();
 
             return DisplayData();
         }
@@ -73,29 +78,52 @@ namespace BlazorApp2.Services
 
             if (model.Type.Equals("address", StringComparison.OrdinalIgnoreCase))
             {
-                // retrieve address
-                // return
+                return await GetFormattedAddressAsync(model);
             }
 
-            var url = $"{_httpClient.BaseAddress}&Container={model.Id}&{_urlConstantParams}";
+            var httpClient = _httpClientFactory.CreateClient("PostcodeSearch");
+            var url = $"{httpClient.BaseAddress}&Container={model.Id}&{_urlConstantParams}";
 
-            _loqatePostcodeSearchResponse = await DoGetDataAsync(url);
+            var apiContent = await DoGetDataAsync(httpClient, url);
+
+            _loqatePostcodeSearchResponse = JsonSerializer.Deserialize<LoqatePostcodeSearchResponse>(apiContent)
+                ?? new LoqatePostcodeSearchResponse();
 
             return DisplayData();
         }
 
-        private async Task<LoqatePostcodeSearchResponse> DoGetDataAsync(string url)
+        private async Task<IEnumerable<string>> GetFormattedAddressAsync(LoqatePostcodeSearchItem model)
         {
-            var apiResult = await _httpClient.GetAsync(url);
+            var httpClient = _httpClientFactory.CreateClient("RetrieveAddress");
+            var url = $"{httpClient.BaseAddress}&Id={model.Id}&Text={model.Description}&{_urlConstantParams}";
+
+            var apiContent = await DoGetDataAsync(httpClient, url);
+
+            var address = JsonSerializer.Deserialize<LoqateFormattedAddressResponse>(apiContent) ?? new LoqateFormattedAddressResponse();
+
+            return DisplayFormattedAddress(address);
+        }
+
+        private IEnumerable<string> DisplayFormattedAddress(LoqateFormattedAddressResponse addressResponse)
+        {
+            var result = new List<string>();
+            
+            foreach (var item in addressResponse.Items)
+            {
+                result.Add(item.Label);
+            }
+            return result;
+        }
+
+        private async Task<string> DoGetDataAsync(HttpClient httpClient, string url)
+        {
+            var apiResult = await httpClient.GetAsync(url);
 
             apiResult.EnsureSuccessStatusCode();
 
             var content = await apiResult.Content.ReadAsStringAsync();
 
-            var result = JsonSerializer.Deserialize<LoqatePostcodeSearchResponse>(content)
-                ?? new LoqatePostcodeSearchResponse();
-
-            return result;
+            return content;
         }
 
         private IEnumerable<string> DisplayData()
@@ -110,7 +138,7 @@ namespace BlazorApp2.Services
             var description = displayDataArray[1];
 
             var model = _loqatePostcodeSearchResponse.Items.Single(ls => ls.Text.Equals(text));
-              //&& ls.Description.Equals(description));
+            //&& ls.Description.Equals(description));
 
             return model;
         }

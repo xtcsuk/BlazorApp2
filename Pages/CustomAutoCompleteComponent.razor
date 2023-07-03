@@ -1,22 +1,21 @@
 ﻿@using BlazorApp2.Services;
 
-@inject HttpClient http
+@*@inject HttpClient http
 @inject IPostcodeSearch postcodeSearchService
-
-@if (OptionList == null)
-{
-    return;
-}
+*@
 
 <h3>Autocomplete Demo</h3>
 <div class="autocomplete">
     <input @bind=selectedOption @oninput=DoOnInputCallBack class="ant-input" />
     <ul class="options">
-        @foreach (var option in OptionList)
+        @if (OptionList != null)
         {
-            <li class="option">
-                <span class="option-text" @onclick=@(_ => DoOnSelectedOptionCallback(option))>@option</span>
-            </li>
+            @foreach (var option in OptionList)
+            {
+                <li class="option">
+                    <span class="option-text" @onclick=@(_ => DoOnSelectedOptionCallback(option))>@option</span>
+                </li>
+            }
         }
     </ul>
 </div>

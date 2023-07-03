@@ -11,8 +11,15 @@ namespace BlazorApp2.Pages
         public EventCallback<string> OnSelectedOptionCallback { get; set; }
 
         [Parameter]
+        public string Placeholder { get; set; } = "Placeholder not set";
+
+        [Parameter]
         public IEnumerable<string>? OptionList { get; set; }
 
+        protected override void OnAfterRender(bool firstRender)
+        {
+            base.OnAfterRender(firstRender);
+        }
         private async Task DoOnInputCallBack(ChangeEventArgs e)
         {
             var value = e.Value?.ToString();
@@ -24,21 +31,28 @@ namespace BlazorApp2.Pages
 
         private async Task DoOnSelectedOptionCallback(string selectedOption)
         {
-
+            if (!string.IsNullOrWhiteSpace(selectedOption) && OnSelectedOptionCallback.HasDelegate)
+            {
+                await OnSelectedOptionCallback.InvokeAsync(selectedOption);
+                if (OptionList?.Count() == 1)
+                {
+                    selectedOption = OptionList.First();
+                }
+            }
         }
 
         IEnumerable<string>? customers;
         string? selectedCustomerId;
         string? selectedOption;
 
-        async Task HandleInput(ChangeEventArgs e)
-        {
-            filter = e.Value?.ToString();
-            if (filter != null)
-            {
-                customers = await postcodeSearchService.GetDataAsync(filter, 10);
-            }
-        }
+        //async Task HandleInput(ChangeEventArgs e)
+        //{
+        //    filter = e.Value?.ToString();
+        //    if (filter != null)
+        //    {
+        //        customers = await postcodeSearchService.GetDataAsync(filter, 10);
+        //    }
+        //}
 
         void Test(ChangeEventArgs e)
         {

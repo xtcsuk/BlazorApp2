@@ -34,12 +34,12 @@ namespace BlazorApp2.Pages
             if (OnSelectionChange.HasDelegate)
             {
                 await OnSelectionChange.InvokeAsync(value);
-                await _autoComplete?.InputValueChange(string.Empty);
-                var args = new FocusEventArgs();
                 //_autoComplete?.
                 //await _autoComplete?.InputFocus(args);
-                //var args = new KeyboardEventArgs { Key = 49.ToString() };
-                //_autoComplete?.InputKeyDown(args);
+                _autoComplete!.ShowPanel = true;
+                var args = new KeyboardEventArgs { Key = "ArrowDown" };
+                await _autoComplete!.InputKeyDown(args);
+                value = string.Empty;
             }
         }
 

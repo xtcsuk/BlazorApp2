@@ -29,15 +29,18 @@
                                 OnInput="@AutoCompleteOnInput"
                                 OnSelectionChange="@AutoCompleteOnSelectionChange"
                                 PlaceholderCaption="Enter postcode">
-</AntDesignAutoCompleteComponent>
+</AntDesignAutoCompleteComponent>*@
 
-<br />
+@*<br />
 <Divider />
 <p>Total number of address: @autoCompleteData?.Count()</p>*@
 
 @*<TestComponent></TestComponent>*@
 
-<CustomAutoCompleteComponent></CustomAutoCompleteComponent>
+<CustomAutoCompleteComponent OptionList="@autoCompleteData"
+                             OnInputCallback="@AutoCompleteOnInput"
+                             OnSelectedOptionCallback="@AutoCompleteOnSelectionChange">
+</CustomAutoCompleteComponent>
 
 <br />
 <b />
@@ -128,7 +131,7 @@
 
     private async Task AutoCompleteOnInput(string value)
     {
-        var data = await PostcodeSearchService.GetDataAsync(value, 10);
+        var data = await PostcodeSearchService.GetDataAsync(value, 30);
         autoCompleteData = data; //autoCompleteFetchedData.Where(d => d.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
 
