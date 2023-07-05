@@ -1,7 +1,6 @@
-﻿using System;
+﻿using AntDesign.Internal;
 using System.Globalization;
-using System.Net;
-using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 
 namespace BlazorApp2.Services
@@ -53,11 +52,22 @@ namespace BlazorApp2.Services
             //Description
         }
 
-        public async Task<IEnumerable<string>> GetDataAsync(string searchText, int limit)
+        public async Task<IEnumerable<string>> GetDataAsync(string? searchText, int? limit)
         {
+            // response format from provider for a none address (in this instance postcode LU32NX) search
+            // {"Items":[{"Id":"GB|RM|ENG|2NX-LU3","Type":"Postcode",
+            // "Text":"LU3 2NX","Highlight":"0-3,4-7","Description":"Norton Road, Luton - 62 Addresses"}]}
+
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                throw new ArgumentNullException(nameof(searchText));
+            }
+
+            var resultLimit = limit ?? 10;
+
             using var httpClient = _httpClientFactory.CreateClient("PostcodeSearch");
 
-            var url = $"{httpClient.BaseAddress}&Text={searchText}&Limit={limit}{_urlConstantParams}";
+            var url = $"{httpClient.BaseAddress}&Text={searchText}&Limit={resultLimit}{_urlConstantParams}";
 
             var apiContent = await DoGetDataAsync(httpClient, url);
 
@@ -67,7 +77,19 @@ namespace BlazorApp2.Services
             return DisplayData();
         }
 
-        public async Task<IEnumerable<string>> GetAddressAsync(string rawAddress)
+        public bool IsValueAnAddress(string rawAddress)
+        {
+            if (string.IsNullOrWhiteSpace(rawAddress))
+            {
+                throw new ArgumentNullException(nameof(rawAddress));
+            }
+
+            var model = GetModelFromDisplayData(rawAddress);
+
+            return model.Type.Equals("address", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public async Task<IEnumerable<string>> GetAddressAsync(string? rawAddress)
         {
             if (string.IsNullOrWhiteSpace(rawAddress))
             {
@@ -94,6 +116,22 @@ namespace BlazorApp2.Services
 
         private async Task<IEnumerable<string>> GetFormattedAddressAsync(LoqatePostcodeSearchItem model)
         {
+            // provider response for a formatted address
+            // {"Items":[{"Id":"GB|RM|A|56664311","DomesticId":"56664311",
+            // "Language":"ENG","LanguageAlternatives":"ENG","Department":"",
+            // "Company":"","SubBuilding":"","BuildingNumber":"","BuildingName":"57A",
+            // "SecondaryStreet":"","Street":"Norton Road","Block":"",
+            // "Neighbourhood":"","District":"","City":"Luton","Line1":"57A Norton Road",
+            // "Line2":"","Line3":"","Line4":"","Line5":"","AdminAreaName":"Luton","AdminAreaCode":"",
+            // "Province":"Bedfordshire","ProvinceName":"Bedfordshire","ProvinceCode":"","PostalCode":"LU3 2NX",
+            // "CountryName":"United Kingdom","CountryIso2":"GB","CountryIso3":"GBR",
+            // "CountryIsoNumber":"826","SortingNumber1":"60123","SortingNumber2":"",
+            // "Barcode":"(LU32NX4G7)","POBoxNumber":"","Label":"57A Norton Road\nLUTON\nLU3 2NX\nUNITED KINGDOM",
+            // "Type":"Residential","DataLevel":"Premise","Field1":"","Field2":"","Field3":"",
+            // "Field4":"","Field5":"","Field6":"","Field7":"","Field8":"","Field9":"",
+            // "Field10":"","Field11":"","Field12":"","Field13":"","Field14":"","Field15":"",
+            // "Field16":"","Field17":"","Field18":"","Field19":"","Field20":""}]}
+
             var httpClient = _httpClientFactory.CreateClient("RetrieveAddress");
             var url = $"{httpClient.BaseAddress}&Id={model.Id}&Text={model.Description}&{_urlConstantParams}";
 
@@ -107,10 +145,17 @@ namespace BlazorApp2.Services
         private IEnumerable<string> DisplayFormattedAddress(LoqateFormattedAddressResponse addressResponse)
         {
             var result = new List<string>();
-            
+
             foreach (var item in addressResponse.Items)
             {
-                result.Add(item.Label);
+                if (string.IsNullOrWhiteSpace(item.Label))
+                {
+                    throw new NullReferenceException(nameof(item.Label));
+                }
+
+                var label = item.Label.Replace("\n", " ");
+                result.Add(label);
+
             }
             return result;
         }
@@ -123,11 +168,53 @@ namespace BlazorApp2.Services
 
             var content = await apiResult.Content.ReadAsStringAsync();
 
+            CheckForErrorInApiResponse(content);
+
             return content;
+        }
+
+        private void CheckForErrorInApiResponse(string content)
+        {
+            if (!content.Contains("Error", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            // error format returned from the provider
+            // {"Items":[{"Error":"1001","Description":"Id Invalid",
+            // "Cause":"The Id parameter supplied was invalid.",
+            // "Resolution":"You should only pass an ID where the type was returned as Address from the Find service.
+            // Passing IDs of type Postcode will not result in a retrieve - instead,
+            // these should be passed back into the Find service as Container until an Address type is returned."}]}
+
+            var result = JsonSerializer.Deserialize<LoqateErrorResponse>(content);
+            if (result != null && result.Items != null)
+            {
+                var message = new StringBuilder();
+
+                // prepare the message
+                foreach (var item in result.Items)
+                {
+                    message.AppendLine($@"Description: {item.Description} 
+                                       Cause: {item.Cause} Resolution: {item.Resolution}");
+                }
+
+                throw new BadHttpRequestException($"{message}");
+            }
         }
 
         private IEnumerable<string> DisplayData()
         {
+            //var result = new List<string>();
+            //var listResponse = _loqatePostcodeSearchResponse.Items.ToList();
+            //var upperRange = listResponse.Count;
+
+            //for (var i = 0; i < upperRange; i++)
+            //{
+            //    result.Add($"{listResponse[i].Text}, {listResponse[i].Description}: seqId{i}");
+            //}
+
+            //return result;
             return _loqatePostcodeSearchResponse.Items.Select(m => $"{m.Text}, {m.Description}");
         }
 
@@ -137,8 +224,9 @@ namespace BlazorApp2.Services
             var text = displayDataArray[0];
             var description = displayDataArray[1];
 
-            var model = _loqatePostcodeSearchResponse.Items.Single(ls => ls.Text.Equals(text));
-            //&& ls.Description.Equals(description));
+            var model = _loqatePostcodeSearchResponse.Items.Single(m => m.Text.StartsWith(text));
+
+            //var model = _loqatePostcodeSearchResponse.Items.Single(ls => ls.Text.Equals(text));
 
             return model;
         }

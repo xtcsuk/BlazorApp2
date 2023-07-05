@@ -8,7 +8,7 @@
           
         }
 
-        public List<LoqatePostcodeSearchItem> Items { get; set; }
+        public IEnumerable<LoqatePostcodeSearchItem> Items { get; set; }
     }
 
     public class LoqatePostcodeSearchItem

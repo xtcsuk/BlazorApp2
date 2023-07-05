@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace BlazorApp2.Pages
 {
     public partial class CustomAutoCompleteComponent
     {
+        private string? _selectedOption;
+
         [Parameter]
         public EventCallback<string> OnInputCallback { get; set; }
 
@@ -16,10 +19,6 @@ namespace BlazorApp2.Pages
         [Parameter]
         public IEnumerable<string>? OptionList { get; set; }
 
-        protected override void OnAfterRender(bool firstRender)
-        {
-            base.OnAfterRender(firstRender);
-        }
         private async Task DoOnInputCallBack(ChangeEventArgs e)
         {
             var value = e.Value?.ToString();
@@ -36,33 +35,19 @@ namespace BlazorApp2.Pages
                 await OnSelectedOptionCallback.InvokeAsync(selectedOption);
                 if (OptionList?.Count() == 1)
                 {
-                    selectedOption = OptionList.First();
+                    _selectedOption = OptionList.First();
+                    OptionList = null;
                 }
             }
         }
 
-        IEnumerable<string>? customers;
-        string? selectedCustomerId;
-        string? selectedOption;
-
-        //async Task HandleInput(ChangeEventArgs e)
-        //{
-        //    filter = e.Value?.ToString();
-        //    if (filter != null)
-        //    {
-        //        customers = await postcodeSearchService.GetDataAsync(filter, 10);
-        //    }
-        //}
-
-        void Test(ChangeEventArgs e)
+        private void OnKeyUp(KeyboardEventArgs e)
         {
-
-        }
-        void SelectCustomer(string id)
-        {
-            selectedCustomerId = id;
-            selectedOption = id;
-            customers = null;
+            if (e.Key.Equals("escape", StringComparison.OrdinalIgnoreCase))
+            {
+                _selectedOption = null;
+                OptionList = null;
+            }
         }
     }
 }

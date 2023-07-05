@@ -2,7 +2,8 @@
 {
     public interface IPostcodeSearch
     {
-        Task<IEnumerable<string>> GetDataAsync(string serachText, int limit);
-        Task<IEnumerable<string>> GetAddressAsync(string rawAddress);
+        Task<IEnumerable<string>> GetDataAsync(string? serachText, int? limit);
+        bool IsValueAnAddress(string rawAddress);
+        Task<IEnumerable<string>> GetAddressAsync(string? rawAddress);
     }
 }
