@@ -126,7 +126,7 @@
 
     private async Task AutoCompleteOnInput(string value)
     {
-        var data = await PostcodeSearchService.GetDataAsync(value, 30);
+        var data = await PostcodeSearchService.GetAddressFirstAttemptAsync(value, 30);
         autoCompleteData = data; //autoCompleteFetchedData.Where(d => d.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
 
@@ -134,9 +134,16 @@
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
-            var data = await PostcodeSearchService.GetAddressAsync(value);
-            autoCompleteData = data;
-            //StateHasChanged();
+            if (PostcodeSearchService.IsValueAnAddress(value))
+            {
+                var data = await PostcodeSearchService.GetAddressAsync(value);
+                autoCompleteData = data.addressContainer;
+            }
+            else
+            {
+                var data = await PostcodeSearchService.GetAddressFurtherAttemptsAsync(value);
+                autoCompleteData = data;
+            }
         }
     }
 

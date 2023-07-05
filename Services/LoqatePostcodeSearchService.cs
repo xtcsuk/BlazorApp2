@@ -1,5 +1,6 @@
 ﻿using AntDesign.Internal;
 using System.Globalization;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 
@@ -52,7 +53,40 @@ namespace BlazorApp2.Services
             //Description
         }
 
-        public async Task<IEnumerable<string>> GetDataAsync(string? searchText, int? limit)
+        public bool IsValueAnAddress(string? rawAddress)
+        {
+            if (string.IsNullOrWhiteSpace(rawAddress))
+            {
+                throw new ArgumentNullException(nameof(rawAddress));
+            }
+
+            var model = GetModelFromDisplayData(rawAddress);
+
+            return model.Type.Equals("address", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public async Task<IEnumerable<string>> GetAddressFurtherAttemptsAsync(string? rawAddress)
+        {
+            if (string.IsNullOrWhiteSpace(rawAddress))
+            {
+                throw new ArgumentNullException(nameof(rawAddress));
+            }
+
+            var model = GetModelFromDisplayData(rawAddress);
+
+            using var httpClient = _httpClientFactory.CreateClient("PostcodeSearch");
+
+            var url = $"{httpClient.BaseAddress}&Container={model.Id}&{_urlConstantParams}";
+
+            var apiContent = await DoGetDataAsync(httpClient, url);
+
+            _loqatePostcodeSearchResponse = JsonSerializer.Deserialize<LoqatePostcodeSearchResponse>(apiContent)
+                ?? new LoqatePostcodeSearchResponse();
+
+            return DisplayData();
+        }
+
+        public async Task<IEnumerable<string>> GetAddressFirstAttemptAsync(string? searchText, int? limit)
         {
             // response format from provider for a none address (in this instance postcode LU32NX) search
             // {"Items":[{"Id":"GB|RM|ENG|2NX-LU3","Type":"Postcode",
@@ -77,7 +111,7 @@ namespace BlazorApp2.Services
             return DisplayData();
         }
 
-        public bool IsValueAnAddress(string rawAddress)
+        public async Task<(IEnumerable<string> addressContainer, string Address)> GetAddressAsync(string? rawAddress)
         {
             if (string.IsNullOrWhiteSpace(rawAddress))
             {
@@ -86,33 +120,27 @@ namespace BlazorApp2.Services
 
             var model = GetModelFromDisplayData(rawAddress);
 
-            return model.Type.Equals("address", StringComparison.OrdinalIgnoreCase);
-        }
-
-        public async Task<IEnumerable<string>> GetAddressAsync(string? rawAddress)
-        {
-            if (string.IsNullOrWhiteSpace(rawAddress))
-            {
-                throw new ArgumentNullException(nameof(rawAddress));
-            }
-
-            var model = GetModelFromDisplayData(rawAddress);
-
-            if (model.Type.Equals("address", StringComparison.OrdinalIgnoreCase))
-            {
-                return await GetFormattedAddressAsync(model);
-            }
-
-            var httpClient = _httpClientFactory.CreateClient("PostcodeSearch");
-            var url = $"{httpClient.BaseAddress}&Container={model.Id}&{_urlConstantParams}";
+            var httpClient = _httpClientFactory.CreateClient("RetrieveAddress");
+            var url = $"{httpClient.BaseAddress}&Id={model.Id}&Text={model.Description}&{_urlConstantParams}";
 
             var apiContent = await DoGetDataAsync(httpClient, url);
 
-            _loqatePostcodeSearchResponse = JsonSerializer.Deserialize<LoqatePostcodeSearchResponse>(apiContent)
-                ?? new LoqatePostcodeSearchResponse();
+            var address = JsonSerializer.Deserialize<LoqateFormattedAddressResponse>(apiContent) ?? new LoqateFormattedAddressResponse();
 
-            return DisplayData();
+            return (DisplayFormattedAddress(address), string.Empty);
         }
+
+        //public async Task<IEnumerable<string>> GetAddressAsync(string? rawAddress)
+        //{
+        //    if (string.IsNullOrWhiteSpace(rawAddress))
+        //    {
+        //        throw new ArgumentNullException(nameof(rawAddress));
+        //    }
+
+        //    var model = GetModelFromDisplayData(rawAddress);
+
+        //    return await GetFormattedAddressAsync(model);
+        //}
 
         private async Task<IEnumerable<string>> GetFormattedAddressAsync(LoqatePostcodeSearchItem model)
         {
